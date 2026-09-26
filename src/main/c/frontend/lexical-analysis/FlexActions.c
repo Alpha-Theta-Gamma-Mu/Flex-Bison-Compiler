@@ -32,15 +32,32 @@ ModuleDestructor initializeFlexActionsModule(LexicalAnalyzer * lexicalAnalyzer) 
 /* PRIVATE FUNCTIONS */
 
 static void _logTokenAction(const char * actionName, Token * token);
+static CompilationStatus _throw();
+static const char * _toContextString(const FlexContext context);
+
+/**
+ * Get the context string of the specified Flex context.
+ */
+static const char * _toContextString(const FlexContext context) {
+	switch (context) {
+		case 0: return "INITIAL";
+		// @todo Define your context-names here.
+		case 1: return "IMPORT_EXPRESSION";
+		case 2: return "MULTILINE_COMMENT";
+		default:
+			logError(_logger, "The specified Flex context is unknown: %d", context);
+			return "<UNKNOWN CONTEXT>";
+	}
+}
 
 /**
  * Logs a lexical-analyzer action over a token in DEBUGGING level.
  */
 static void _logTokenAction(const char * actionName, Token * token) {
 	char * _lexeme = escape(token->lexeme);
-	logDebugging(_logger, WARNING_COLOR "%s" DEFAULT_COLOR ": Token(context=%d, label=%d, length=%d, lexeme=%s\"%s\"%s, line=%d, semanticValue=%p)",
+	logDebugging(_logger, WARNING_COLOR "%s" DEFAULT_COLOR ": Token(context=%s, label=%d, length=%d, lexeme=%s\"%s\"%s, line=%d, semanticValue=%p)",
 		actionName,
-		token->context,
+		_toContextString(token->context),
 		token->label,
 		token->length,
 		INFORMATION_COLOR, _lexeme, DEFAULT_COLOR,
@@ -48,6 +65,17 @@ static void _logTokenAction(const char * actionName, Token * token) {
 		token->semanticValue);
 	free(_lexeme);
 	_lexeme = NULL;
+}
+
+/**
+ * Instructs the parser to halt execution unrecoverably.
+ */
+CompilationStatus _throw() {
+	logError(_logger, "An exception is thrown.");
+	Token * token = createToken(_lexicalAnalyzer, EXCEPTION);
+	pushToken(_lexicalAnalyzer, token);
+	destroyToken(token);
+	return FAILED;
 }
 
 /* PUBLIC FUNCTIONS */
@@ -87,9 +115,9 @@ CompilationStatus EOFLexemeAction() {
 	if (!popInputBuffer(_lexicalAnalyzer)) {
 		status = pushToken(_lexicalAnalyzer, token);
 		FlexContext context = currentLexicalAnalyzerContext(_lexicalAnalyzer);
-		if (0 < context) {
-			logError(_logger, "The final context is not closed (context=%d).", context);
-			status = FAILED;
+		if (0 != context) {
+			logError(_logger, "The final context is not closed (context=%s).", _toContextString(context));
+			status = _throw();
 		}
 	}
 	destroyToken(token);
@@ -150,12 +178,18 @@ CompilationStatus SubexpressionLexemeAction() {
 		_logTokenAction(__FUNCTION__, token);
 	}
 	destroyToken(token);
-	return IN_PROGRESS;
+	if (_inputBuffer != NULL) {
+		return IN_PROGRESS;
+	}
+	else {
+		return _throw();
+	}
 }
 
 CompilationStatus UnknownLexemeAction() {
 	Token * token = createToken(_lexicalAnalyzer, UNKNOWN);
 	_logTokenAction(__FUNCTION__, token);
+	CompilationStatus status = pushToken(_lexicalAnalyzer, token);
 	destroyToken(token);
 	return FAILED;
 }

@@ -52,8 +52,15 @@ InputBuffer * createInputBuffer(LexicalAnalyzer * lexicalAnalyzer, const char * 
 	inputBuffer->bufferSizeInBytes = YY_BUF_SIZE;
 	inputBuffer->file = fopen(path, "r");
 	inputBuffer->lexicalAnalyzer = lexicalAnalyzer;
-	inputBuffer->buffer = yy_create_buffer(inputBuffer->file, inputBuffer->bufferSizeInBytes, lexicalAnalyzer->scanner);
-	return inputBuffer;
+	if (inputBuffer->file != NULL) {
+		inputBuffer->buffer = yy_create_buffer(inputBuffer->file, inputBuffer->bufferSizeInBytes, lexicalAnalyzer->scanner);
+		return inputBuffer;
+	}
+	else {
+		logError(_logger, "The file \"%s\" doesn't exist.", path, inputBuffer->file);
+		destroyInputBuffer(inputBuffer);
+		return NULL;
+	}
 }
 
 LexicalAnalyzer * createLexicalAnalyzer() {

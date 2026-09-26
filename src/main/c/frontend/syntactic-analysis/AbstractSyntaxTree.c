@@ -41,6 +41,9 @@ void destroyExpression(Expression * expression) {
 			case FACTOR:
 				destroyFactor(expression->factor);
 				break;
+			default:
+				logError(_logger, "The specified expression type is unknown: %d", expression->type);
+				break;
 		}
 		free(expression);
 	}
@@ -55,6 +58,9 @@ void destroyFactor(Factor * factor) {
 				break;
 			case EXPRESSION:
 				destroyExpression(factor->expression);
+				break;
+			default:
+				logError(_logger, "The specified factor type is unknown: %d", factor->type);
 				break;
 		}
 		free(factor);
