@@ -2,6 +2,7 @@
 
 #include "../../support/type/CompilationStatus.h"
 #include "../../support/type/FlexContext.h"
+#include "../../support/type/Handler.h"
 #include "../../support/type/TokenLabel.h"
 #include "../syntactic-analysis/AbstractSyntaxTree.h"
 #include "../syntactic-analysis/BisonParser.h"
@@ -9,6 +10,13 @@
 }
 
 %{
+
+/**
+ * @see https://westes.github.io/flex/manual/Misc-Macros.html
+ */
+#define YY_USER_ACTION (currentLexicalAnalysisHandler())();
+
+extern Handler currentLexicalAnalysisHandler();
 
 /**
  * @see https://westes.github.io/flex/manual/Definitions-Section.html#Definitions-Section

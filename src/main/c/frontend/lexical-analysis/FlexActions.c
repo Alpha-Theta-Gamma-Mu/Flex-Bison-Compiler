@@ -7,6 +7,11 @@ static InputBuffer * _inputBuffer = NULL;
 static LexicalAnalyzer * _lexicalAnalyzer = NULL;
 static Logger * _logger = NULL;
 
+/** @todo: Override this with your own implementation. */
+static void _defaultHandler() {
+	// ...
+}
+
 /** Shutdown module's internal state. */
 void _shutdownFlexActionsModule() {
 	if (_logger != NULL) {
@@ -26,6 +31,7 @@ ModuleDestructor initializeFlexActionsModule(LexicalAnalyzer * lexicalAnalyzer) 
 	_lexicalAnalyzer = lexicalAnalyzer;
 	_logger = createLogger("FlexActions");
 	_logIgnoredLexemes = getBooleanOrDefault("LOG_IGNORED_LEXEMES", _logIgnoredLexemes);
+	onLexicalAnalysisAction(_defaultHandler);
 	return _shutdownFlexActionsModule;
 }
 
@@ -55,13 +61,20 @@ static const char * _toContextString(const FlexContext context) {
  */
 static void _logTokenAction(const char * actionName, Token * token) {
 	char * _lexeme = escape(token->lexeme);
-	logDebugging(_logger, WARNING_COLOR "%s" DEFAULT_COLOR ": Token(context=%s, label=%d, length=%d, lexeme=%s\"%s\"%s, line=%d, semanticValue=%p)",
+	YYLTYPE * location = (YYLTYPE *) _lexicalAnalyzer->location;
+	logDebugging(_logger,
+		WARNING_COLOR "%s" DEFAULT_COLOR
+		": Token(context=%s, label=%d, length=%d, lexeme=%s\"%s\"%s, line=%d, location=%d:%d-%d:%d, semanticValue=%p)",
 		actionName,
 		_toContextString(token->context),
 		token->label,
 		token->length,
 		INFORMATION_COLOR, _lexeme, DEFAULT_COLOR,
 		token->line,
+		location->first_line,
+		location->first_column,
+		location->last_line,
+		location->last_column,
 		token->semanticValue);
 	free(_lexeme);
 	_lexeme = NULL;

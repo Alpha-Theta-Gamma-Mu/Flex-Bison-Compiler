@@ -5,6 +5,11 @@
 static CompilerState * _compilerState = NULL;
 static Logger * _logger = NULL;
 
+/** @todo: Override this with your own implementation. */
+static void _defaultHandler() {
+	// ...
+}
+
 /** Shutdown module's internal state. */
 void _shutdownBisonActionsModule() {
 	if (_logger != NULL) {
@@ -18,6 +23,7 @@ void _shutdownBisonActionsModule() {
 ModuleDestructor initializeBisonActionsModule(CompilerState * compilerState) {
 	_compilerState = compilerState;
 	_logger = createLogger("BisonActions");
+	onSyntacticAnalysisAction(_defaultHandler);
 	return _shutdownBisonActionsModule;
 }
 

@@ -4,6 +4,7 @@
 #include "../support/logging/Logger.h"
 #include "../support/type/CompilationStatus.h"
 #include "../support/type/FlexContext.h"
+#include "../support/type/Handler.h"
 #include "../support/type/InputBuffer.h"
 #include "../support/type/LexicalAnalyzer.h"
 #include "../support/type/ModuleDestructor.h"
@@ -42,6 +43,16 @@ Token * createToken(LexicalAnalyzer * lexicalAnalyzer, TokenLabel label);
 FlexContext currentLexicalAnalyzerContext(LexicalAnalyzer * lexicalAnalyzer);
 
 /**
+ * Returns the current lexical-analysis handler.
+ */
+Handler currentLexicalAnalysisHandler();
+
+/**
+ * Returns the current syntactic-analysis handler.
+ */
+Handler currentSyntacticAnalysisHandler();
+
+/**
  * Destroys an input buffer.
  */
 void destroyInputBuffer(InputBuffer * inputBuffer);
@@ -75,6 +86,16 @@ CompilationStatus executeSyntacticAnalysis();
  * Leaves the current nested lexical-analyzer context.
  */
 void leaveLexicalAnalyzerContext(LexicalAnalyzer * lexicalAnalyzer);
+
+/**
+ * Sets a handler that runs before every lexical-analysis actions.
+ */
+void onLexicalAnalysisAction(Handler handler);
+
+/**
+ * Sets a handler that runs before every syntactic-analysis actions.
+ */
+void onSyntacticAnalysisAction(Handler handler);
 
 /**
  * Pops the current input buffer from the lexical-analyzer. Returns true if

@@ -1,7 +1,11 @@
 #include "Frontend.h"
 
+static void _defaultHandler() { /** Nothing by default. */}
+
 /* MODULE INTERNAL STATE */
 
+static Handler _lexicalAnalysisHandler = _defaultHandler;
+static Handler _syntacticAnalysisHandler = _defaultHandler;
 static LexicalAnalyzer * _lexicalAnalyzer = NULL;
 static Logger * _logger = NULL;
 
@@ -65,7 +69,12 @@ InputBuffer * createInputBuffer(LexicalAnalyzer * lexicalAnalyzer, const char * 
 
 LexicalAnalyzer * createLexicalAnalyzer() {
 	LexicalAnalyzer * lexicalAnalyzer = (LexicalAnalyzer *) calloc(1, sizeof(LexicalAnalyzer));
-	lexicalAnalyzer->location = calloc(1, sizeof(YYLTYPE));
+	YYLTYPE * location = calloc(1, sizeof(YYLTYPE));
+	location->first_column = 1;
+	location->first_line = 1;
+	location->last_column = 1;
+	location->last_line = 1;
+	lexicalAnalyzer->location = location;
 	lexicalAnalyzer->logger = createLogger("LexicalAnalyzer");
 	yylex_init(&lexicalAnalyzer->scanner);
 	lexicalAnalyzer->parser = yypstate_new();
@@ -87,6 +96,14 @@ Token * createToken(LexicalAnalyzer * lexicalAnalyzer, TokenLabel label) {
 
 FlexContext currentLexicalAnalyzerContext(LexicalAnalyzer * lexicalAnalyzer) {
 	return flexCurrentContext(lexicalAnalyzer);
+}
+
+Handler currentLexicalAnalysisHandler() {
+	return _lexicalAnalysisHandler;
+}
+
+Handler currentSyntacticAnalysisHandler() {
+	return _syntacticAnalysisHandler;
 }
 
 void destroyInputBuffer(InputBuffer * inputBuffer) {
@@ -172,6 +189,22 @@ CompilationStatus executeSyntacticAnalysis() {
 
 void leaveLexicalAnalyzerContext(LexicalAnalyzer * lexicalAnalyzer) {
 	flexLeaveContext(lexicalAnalyzer);
+}
+
+void onLexicalAnalysisAction(Handler handler) {
+	if (handler != NULL) {
+		_lexicalAnalysisHandler = handler;
+	} else {
+		logError(_logger, "The lexical-analysis handler cannot be null.");
+	}
+}
+
+void onSyntacticAnalysisAction(Handler handler) {
+	if (handler != NULL) {
+		_syntacticAnalysisHandler = handler;
+	} else {
+		logError(_logger, "The syntactic-analysis handler cannot be null.");
+	}
 }
 
 bool popInputBuffer(LexicalAnalyzer * lexicalAnalyzer) {

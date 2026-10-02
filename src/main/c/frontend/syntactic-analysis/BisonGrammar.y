@@ -7,12 +7,27 @@
 /**
  * The error reporting function for Bison parser.
  *
- * @todo Add location to the grammar and "pushToken" API function.
- *
  * @see https://www.gnu.org/software/bison/manual/html_node/Error-Reporting-Function.html
  * @see https://www.gnu.org/software/bison/manual/html_node/Tracking-Locations.html
  */
 void yyerror(const YYLTYPE * location, const char * message) {}
+
+/**
+ * @see https://www.gnu.org/software/bison/manual/html_node/Location-Default-Action.html
+ */
+# define YYLLOC_DEFAULT(location, rhs, k) \
+	do { \
+		if ((k)) { \
+			(location).first_column = YYRHSLOC((rhs), 1).first_column; \
+			(location).first_line = YYRHSLOC((rhs), 1).first_line; \
+			(location).last_column = YYRHSLOC((rhs), (k)).last_column; \
+			(location).last_line = YYRHSLOC((rhs), (k)).last_line; \
+		} else { \
+			(location).first_column = (location).last_column = YYRHSLOC((rhs), 0).last_column; \
+			(location).first_line = (location).last_line = YYRHSLOC((rhs), 0).last_line; \
+		} \
+		(currentSyntacticAnalysisHandler())(); \
+	} while (0)
 
 %}
 

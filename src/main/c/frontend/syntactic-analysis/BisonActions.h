@@ -5,6 +5,7 @@
 #include "../../support/type/CompilerState.h"
 #include "../../support/type/ModuleDestructor.h"
 #include "../../support/type/TokenLabel.h"
+#include "../Frontend.h"
 #include "AbstractSyntaxTree.h"
 #include "BisonParser.h"
 #include <stdlib.h>
