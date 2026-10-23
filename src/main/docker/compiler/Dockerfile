@@ -9,5 +9,7 @@ RUN apt update --yes \
 		cmake \
 		flex \
 		gcc \
+		gdb \
+		gdbserver \
 		make \
 	&& rm --force --recursive /var/lib/apt/lists/*

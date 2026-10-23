@@ -18,7 +18,8 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
 
 	# Options for GCC.
 	add_compile_options(-fsanitize=address)
-	add_compile_options(-O3)
+	add_compile_options(-g)
+	add_compile_options(-O0)
 	add_compile_options(-static-libgcc)
 	add_compile_options(-std=gnu99)
 	add_link_options(-fsanitize=address)

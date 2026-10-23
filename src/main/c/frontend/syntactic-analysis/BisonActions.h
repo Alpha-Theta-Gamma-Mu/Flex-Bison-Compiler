@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 /** Initialize module's internal state. */
-ModuleDestructor initializeBisonActionsModule();
+ModuleDestructor initializeBisonActionsModule(CompilerState * compilerState);
 
 /**
  * Bison semantic actions.

@@ -21,7 +21,8 @@ Set the following environment variables to control and configure the behaviour o
 | Name                  | Default | Description                                                                                                                                                           |
 | :-------------------- | :-----: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `ENVIRONMENT`         | `Local` | The active environment name. The available environments are: `Local`, `Development` and `Production`.                                                                 |
-| `LOG_IGNORED_LEXEMES` | `true`  | When `true`, logs all of the ignored lexemes found with Flex at `DEBUGGING` level. To remove those logs from the console output set it to `false`.                    |
+| `GDB_LISTENING_PORT`  | `2345`  | The host port where the GDB server is exposed.                                                                                                                        |
+| `LOG_IGNORED_LEXEMES` | `true`  | When `true`, logs all of the ignored lexemes found with Flex at `DEBUGGING` level. To remove those logs from the console output, set it to `false`.                   |
 | `LOGGING_LEVEL`       | `ALL`   | The minimum level to log in the console output. From lower to higher, the available levels are: `ALL`, `DEBUGGING`, `INFORMATION`, `WARNING`, `ERROR` and `CRITICAL`. |
 
 _Docker Compose_ can read the variables from an `.env` file too (see `compose.yaml` file).
@@ -30,7 +31,7 @@ _Docker Compose_ can read the variables from an `.env` file too (see `compose.ya
 
 ### Start
 
-Rises an ephemeral container, ready to start development:
+Raises an ephemeral container, ready to start development:
 
 ```bash
 docker compose run --rm compiler
@@ -52,11 +53,30 @@ Compiles a program:
 src/main/bash/run.sh <program>
 ```
 
-where `<program>` is the path to the file that represents its entry-point.
+where `<program>` is the path to the file that represents its entry point.
+
+### Debug
+
+The container exposes the _GDB_ server on the host port `GDB_LISTENING_PORT`. After building the compiler, run it through the _GDB_ server, which waits for an external debugger to connect:
+
+```bash
+docker compose run --rm --service-ports compiler
+src/main/bash/build.sh
+src/main/bash/debug.sh <program>
+```
+
+For example, you can connect to it from the host on port `2345` (the default) using:
+
+```bash
+gdb -ex "set substitute-path /home/ubuntu/Flex-Bison-Compiler $PWD" \
+    -ex "target remote 127.0.0.1:2345" \
+    -ex "break main" \
+    .build/Flex-Bison-Compiler
+```
 
 ### Test
 
-Executes every available unit-test under `src/test/c` folder:
+Executes every available unit test under the `src/test/c` folder:
 
 ```bash
 src/main/bash/test.sh
@@ -64,7 +84,7 @@ src/main/bash/test.sh
 
 ### Stop
 
-Logout, destroy the ephemeral containers and shutdowns the cluster:
+Log out, destroy the ephemeral containers and shut down the cluster:
 
 ```bash
 exit
@@ -75,7 +95,7 @@ docker compose down
 
 | Command                                 | Description                                             |
 | :-------------------------------------- | :------------------------------------------------------ |
-| `docker builder prune --all`            | Removes all builds and complete build cache.            |
+| `docker builder prune --all`            | Removes all builds and the complete build cache.        |
 | `docker compose --progress=plain build` | Forces a build or rebuild of the images in the cluster. |
 | `docker image prune`                    | Removes all of the dangling images from Docker.         |
 | `docker network prune`                  | Removes unused networks from Docker.                    |

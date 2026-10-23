@@ -34,6 +34,8 @@ services:
       ar-edu-itba-72-39:
         aliases:
           - "compiler.72-39.itba.edu.ar"
+    ports:
+      - "127.0.0.1:${GDB_LISTENING_PORT:-2345}:2345/tcp"
     user: "ubuntu:ubuntu"
     volumes:
       - ".:/home/ubuntu/Flex-Bison-Compiler"

@@ -1,0 +1,18 @@
+{
+	"configurations": [
+		{
+			"cwd": "${workspaceFolder}",
+			"miDebuggerPath": "gdb",
+			"miDebuggerServerAddress": "127.0.0.1:2345",
+			"MIMode": "gdb",
+			"name": "Connect to GDB server",
+			"program": "${workspaceFolder}/.build/Flex-Bison-Compiler",
+			"request": "launch",
+			"sourceFileMap": {
+				"/home/ubuntu/Flex-Bison-Compiler": "${workspaceFolder}"
+			},
+			"type": "cppdbg"
+		}
+	],
+	"version": "0.2.0"
+}

@@ -5,7 +5,7 @@
 /.build/
 /.git/
 /.vs/
-/.vscode/
+/.vscode/*
 /bin/
 /cache/
 /log/
@@ -17,6 +17,9 @@
 .env*
 *.csproj.user
 *~
+
+# Exceptions.
+!/.vscode/launch.json
 
 # Application specific.
 BisonParser.c
